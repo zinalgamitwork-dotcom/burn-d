@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>BURN'D</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Indie+Flower&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background: #f5f0e8;
+      font-family: 'Indie Flower', cursive;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 4rem 2rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: 2rem;
+      letter-spacing: 0.2em;
+      margin-bottom: 1rem;
+    }
+
+    p {
+      text-align: center;
+      line-height: 1.9;
+      color: #555;
+      margin-bottom: 2rem;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 100px;
+      background: transparent;
+      border: 1px solid #ccc;
+      font-family: 'Indie Flower', cursive;
+      font-size: 1.1rem;
+      outline: none;
+      resize: none;
+      text-align: center;
+      margin-bottom: 2rem;
+      padding: 1rem;
+      overflow: hidden;
+    }
+
+    button {
+      border: 1px solid #c4622d;
+      background: none;
+      color: #c4622d;
+      padding: 0.6rem 2rem;
+      cursor: pointer;
+      font-size: 0.85rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      font-family: 'Indie Flower', cursive;
+    }
+
+    /* BURN OVERLAY */
+    #overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: black;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+    }
+
+    #overlay.active {
+      display: flex;
+    }
+
+    #burning-text {
+      font-family: 'Indie Flower', cursive;
+      font-size: 1.2rem;
+      color: #f5f0e8;
+      max-width: 560px;
+      text-align: center;
+      line-height: 1.9;
+      padding: 2rem;
+      white-space: pre-wrap;
+    }
+
+    #gone-msg {
+      display: none;
+      font-family: 'Indie Flower', cursive;
+      font-size: 1.4rem;
+      color: rgba(245,240,232,0.6);
+      font-style: italic;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    #gone-msg.active {
+      display: flex;
+    }
+
+    #write-again {
+      border: none;
+      background: none;
+      font-family: 'Indie Flower', cursive;
+      font-size: 0.85rem;
+      color: rgba(245,240,232,0.35);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      margin-top: 1rem;
+    }
+
+    #write-again:hover {
+      color: rgba(245,240,232,0.7);
+    }
+
+    /* char burn animation */
+    @keyframes burnChar {
+      0%   { opacity: 1; color: #f5f0e8; }
+      40%  { opacity: 1; color: #ff9940; text-shadow: 0 0 8px #ff6600; }
+      70%  { opacity: 0.5; color: #ff4400; }
+      100% { opacity: 0; color: #111; }
+    }
+
+    .burn-char {
+      display: inline;
+      animation: burnChar var(--dur) forwards;
+      animation-delay: var(--delay);
+    }
+  </style>
+</head>
+<body>
+
+  <h1>BURN'D</h1>
+  <p>
+    this is a safe place to say it.<br><br>
+    There are things we carry around for years. Words we never sent.
+    Conversations that never happened. Things we wish we'd said —
+    to someone else, or to ourselves.<br><br>
+    Write it here. All of it. No one will read it. No one will know.
+    When you're ready, burn it — and leave a little lighter than you came.
+  </p>
+
+  <textarea id="message" placeholder="say everything you've been holding..." oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
+
+  <button onclick="startBurn()">🔥 let it go</button>
+
+  <!-- BURN OVERLAY -->
+  <div id="overlay">
+    <div id="burning-text"></div>
+    <div id="gone-msg">
+      <p>it's gone. and so is some of what you were carrying.</p>
+      <button id="write-again" onclick="resetPage()">write another</button>
+    </div>
+  </div>
+
+  <script>
+    function startBurn() {
+      const msg = document.getElementById('message').value.trim();
+      if (!msg) return;
+
+      const overlay = document.getElementById('overlay');
+      const burningText = document.getElementById('burning-text');
+      const goneMsg = document.getElementById('gone-msg');
+
+      // show overlay
+      overlay.classList.add('active');
+      burningText.innerHTML = '';
+
+      // wrap every character in a span with random delay
+      for (let i = 0; i < msg.length; i++) {
+        const span = document.createElement('span');
+        span.classList.add('burn-char');
+        span.textContent = msg[i] === '\n' ? '\n' : msg[i];
+        const delay = (Math.random() * 2.5).toFixed(2);
+        const dur = (0.8 + Math.random() * 1.2).toFixed(2);
+        span.style.setProperty('--delay', delay + 's');
+        span.style.setProperty('--dur', dur + 's');
+        burningText.appendChild(span);
+      }
+
+      // after burn, show "it's gone"
+      setTimeout(() => {
+        burningText.style.display = 'none';
+        goneMsg.classList.add('active');
+      }, 4500);
+    }
+
+    function resetPage() {
+      const overlay = document.getElementById('overlay');
+      const burningText = document.getElementById('burning-text');
+      const goneMsg = document.getElementById('gone-msg');
+
+      overlay.classList.remove('active');
+      goneMsg.classList.remove('active');
+      burningText.style.display = 'block';
+      document.getElementById('message').value = '';
+      document.getElementById('message').style.height = 'auto';
+    }
+  </script>
+
+</body>
+</html>
